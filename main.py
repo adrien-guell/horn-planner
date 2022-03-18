@@ -2,17 +2,21 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.patches as mpatches
+import bezier
+
 
 class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
+
 class Line:
     def __init__(self, point_start, point_end, closed):
         self.point_start = point_start
         self.point_end = point_end
         self.closed = closed
+
 
 class Section:
     def __init__(self, lines):
@@ -36,6 +40,24 @@ def straight_to_l(opening_start, opening_end, closing_start, closing_end):
 
     plt.show()
     return math.sqrt((closing_middle_x - opening_middle_x) ** 2 + (closing_middle_y - opening_middle_y) ** 2)
+
+
+def center_of_points(a, b):
+    return Point((a.x + b.x) / 2, (a.y + b.y) / 2)
+
+
+# With a i center of rotation and b the start of rotation
+def bend_to_l(a, b, c, d):
+    ab = center_of_points(a, b)
+    ac = center_of_points(a, c)
+    ad = center_of_points(a, d)
+
+    nodes = np.asfortranarray([
+        [ac.x, ad.x, ab.x],
+        [ac.y, ad.y, ab.y]
+    ])
+    curve = bezier.Curve(nodes, degree=2)
+    return curve.length
 
 
 def bend_to_l(height, width, number_of_segments):
@@ -97,18 +119,18 @@ def ellipsis_to_points(height, width, number_of_segments):
     return points
 
 
-def ellipsis_to_point(A, B, teta):
+def ellipsis_to_point(width, height, teta):
     a = math.tan(teta)
-    b = A * a - B
+    b = width * a - height
 
-    x1 = (-(a * b) - B * math.sqrt(((B ** 2 - b ** 2) / A ** 2) + a ** 2)) / ((B ** 2 / A ** 2) + a ** 2)
+    x1 = (-(a * b) - height * math.sqrt(((height ** 2 - b ** 2) / width ** 2) + a ** 2)) / ((height ** 2 / width ** 2) + a ** 2)
     y1 = a * x1 + b
-    x2 = (-(a * b) + B * math.sqrt(((B ** 2 - b ** 2) / A ** 2) + a ** 2)) / ((B ** 2 / A ** 2) + a ** 2)
+    x2 = (-(a * b) + height * math.sqrt(((height ** 2 - b ** 2) / width ** 2) + a ** 2)) / ((height ** 2 / width ** 2) + a ** 2)
     y2 = a * x2 + b
 
-    if dist_to_origin(x1, y1, -A, -B) > dist_to_origin(x2, y2, -A, -B):
-        return (x1 + A) / 2, (y1 + B) / 2
-    return (x2 + A) / 2, (y2 + B) / 2
+    if dist_to_origin(x1, y1, -width, -height) > dist_to_origin(x2, y2, -width, -height):
+        return (x1 + width) / 2, (y1 + height) / 2
+    return (x2 + width) / 2, (y2 + height) / 2
 
 
 def dist_to_origin(xa, ya, xb, yb):
@@ -126,4 +148,5 @@ def right_triangle_to_points(height, width, horizontal):
 
 # main
 # print(bend_to_l(860, 328, 5) * 1.2)
-print(straight_to_l((0,0), (10,0), (0,10), (10,10)))
+# print(straight_to_l((0,0), (10,0), (0,10), (10,10)))
+print(bend_to_l(Point(0,0)))
