@@ -1,7 +1,7 @@
 import {Point} from "./models/Point";
-import {Rotation} from "./models/Rotation";
 const sqrt = Math.sqrt;
 const pow = Math.pow;
+const sin = Math.sin;
 
 export function centerOf(pointA: Point, pointB: Point): Point {
     return {
@@ -21,6 +21,17 @@ export function add(pointA: Point, pointB: Point): Point {
     }
 }
 
+export function sub(pointA: Point, pointB: Point): Point {
+    return {
+        x: pointA.x - pointB.x,
+        y: pointA.y - pointB.y
+    }
+}
+
+export function dot(pointA: Point, pointB: Point): number {
+    return  pointA.x * pointB.x + pointA.y * pointB.y
+}
+
 export function div(pointA: Point, div: number): Point {
     return {
         x: pointA.x / div,
@@ -28,13 +39,14 @@ export function div(pointA: Point, div: number): Point {
     }
 }
 
-export function rotate(point: Point, rotation: Rotation): Point {
-    if (rotation == 90)
-        return {x: point.y, y: -point.x}
-    if (rotation == 180)
-        return {x: -point.x, y: -point.y}
-    if (rotation == 270)
-        return {x: -point.y, y: point.x}
-    else
-        return point
+export function areaOfPolygon(points: Point[]): number {
+
+}
+
+export function areaOfTriangle(a: number, b: number, angle: number): number {
+    return 0.5 * a * b * sin(angle)
+}
+
+export function areaOfRightTriangle(width: number, height: number) {
+    return (width * height) / 2
 }

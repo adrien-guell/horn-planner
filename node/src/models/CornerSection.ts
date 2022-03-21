@@ -1,12 +1,9 @@
 import {Point} from "./Point";
 import {Section} from "./Section";
-import {Rotation} from "./Rotation";
 import {Bezier} from "bezier-js";
-import {add, centerOf, div, normalize} from "../geometry";
-const abs = Math.abs;
-const sqrt = Math.sqrt;
-const tan = Math.tan;
-const atan = Math.atan;
+import {areaOfTriangle, centerOf, dot, normalize, sub} from "../geometry";
+import {Line} from "./Line";
+const acos = Math.acos
 
 /**
  *
@@ -21,53 +18,50 @@ const atan = Math.atan;
  *
  */
 
-export class CornerSection implements Section {
+export class CornerSection extends Section {
     centerOfRotation: Point
     start: Point
     end: Point
     opposite: Point
-    position: Point
-    rotation: Rotation
-    path: Point[]
 
-    constructor(center: Point, start: Point, end: Point, opposite: Point, position: Point, rotation: Rotation) {
+    constructor(name: string, center: Point, start: Point, end: Point, opposite: Point) {
+        super(name)
         this.centerOfRotation = center;
         this.start = start;
         this.end = end;
         this.opposite = opposite;
-        this.position = position;
-        this.rotation = rotation;
-        this.path = [];
     }
 
-    strokePath(context: any) {
+    computeArea(): number {
+        const a1 = normalize(this.start, this.end)
+        const b1 = normalize(this.centerOfRotation, this.start)
+        const angle1 = acos(dot(
+                sub(this.end, this.centerOfRotation),
+                sub(this.end, this.start)
+            ) / (normalize(this.end, this.centerOfRotation) * normalize(this.end, this.start)))
+        const area1 = areaOfTriangle(a1, b1, angle1)
 
+        const a2 = normalize(this.centerOfRotation, this.opposite)
+        const b2 = normalize(this.start, this.centerOfRotation)
+        const angle2 = acos(dot(
+            sub(this.opposite, this.start),
+            sub(this.opposite, this.centerOfRotation)
+        ) / (normalize(this.opposite, this.start) * normalize(this.opposite, this.centerOfRotation)))
+        const area2 = areaOfTriangle(a2, b2, angle2)
+
+        return area1 + area2
     }
 
-    computeLength() {
-        let sum = 0
-        for (let i = 0; i < this.path.length - 1; i++)
-            sum += normalize(this.path[i], this.path[i + 1])
-        return sum
-    }
-
-    computePath() {
-        const method = "bezier"
-        const numberOfPoints = 20
-        const width = abs(this.opposite.x - this.start.x)
-        const height = abs(this.start.y - this.centerOfRotation.y)
-
+    computePath(numberOfPoints: number = 20) {
         this.path = []
-        if (method == "bezier")
-            this.computeBezierPath(1 / numberOfPoints)
-        // else
-        //     this.path.concat(getEllipsisPath(width / 2, height / 2, numberOfPoints))
+        this.computeBezierPath(1 / numberOfPoints)
     }
 
     computeBezierPath(step: number) {
         const leftCenter = centerOf(this.centerOfRotation, this.start)
         const rightCenter = centerOf(this.opposite, this.end)
         const bottomCenter = centerOf(this.centerOfRotation, this.end)
+
         const center = centerOf(leftCenter, rightCenter)
         const start = centerOf(center, leftCenter)
         const end = centerOf(center, bottomCenter)
@@ -77,6 +71,31 @@ export class CornerSection implements Section {
         for (let t = 0; t <= 1; t += step)
             this.path.push(bezier.get(t))
         this.path.push(bottomCenter)
+    }
+
+    getLines(): Line[] {
+        const lines: Line[] = []
+        lines.push({
+            path: [this.start, this.centerOfRotation, this.end],
+            style: {style: "#000000", lineDash: [5, 15], lineWidth: 2}
+        })
+
+        lines.push({
+            path: [this.start, this.opposite, this.end],
+            style: {style: "#000000", lineDash: [], lineWidth: 3}
+        })
+
+        lines.push({
+            path: [centerOf(this.centerOfRotation, this.start), centerOf(this.end, this.opposite)],
+            style: {style: "#000000", lineDash: [2, 5], lineWidth: 1}
+        })
+
+        lines.push({
+            path: [centerOf(this.centerOfRotation, this.end), centerOf(this.start, this.opposite)],
+            style: {style: "#000000", lineDash: [2, 5], lineWidth: 1}
+        })
+
+        return lines;
     }
 
     /*getEllipsisPath(numberOfPoints: number): Point[] {

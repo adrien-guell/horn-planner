@@ -1,100 +1,78 @@
-import {createCanvas} from 'canvas';
-import * as fs from "fs";
-import {Point} from "./models/Point";
 import {CornerSection} from "./models/CornerSection";
-import {Section} from "./models/Section";
-import {centerOf, rotate} from "./geometry";
-import {Rotation} from "./models/Rotation";
+import {Drawer} from "./models/Drawer";
+import {StraightSection} from "./models/StraightSection";
+import {Plan} from "./models/Plan";
+const sqrt = Math.sqrt
+const pow = Math.pow
 
-
-
-const corner1 = new CornerSection(
-    {x: 3, y: 400},
-    {x: 430, y: 389},
-    {x: 6, y: 10},
-    {x: 412, y: 328},
-    {x: 0, y: 0},
-    0
+const s8 = new StraightSection(
+    "s8",
+    {x: 344, y: 363},
+    {x: 344, y: 0},
+    {x: 0, y: 363},
+    {x: 0, y: 0}
 )
 
-corner1.computePath()
-console.log(corner1.computeLength() * 1.2)
+const s7 = new CornerSection(
+    "s7",
+    s8.startSrc,
+    {x: s8.startSrc.x + 328, y: s8.startSrc.y},
+    s8.startDst,
+    {x: s8.startDst.x + 328, y: s8.startDst.y}
+)
 
+const s6 = new StraightSection(
+    "s6",
+    {x: s7.start.x - 262, y: s7.centerOfRotation.y + 295},
+    {x: s7.start.x, y: s7.start.y + 295},
+    s7.centerOfRotation,
+    s7.start
+)
 
+const s5 = new CornerSection(
+    "s5",
+    s6.startSrc,
+    {x: s6.startSrc.x, y: s6.startSrc.y + 210},
+    s6.startDst,
+    {x: s6.startDst.x, y: s6.startDst.y + 210}
+)
 
-const canvas = createCanvas(500, 500);
-const context = canvas.getContext('2d');
-context.fillStyle = "#FFFFFF"
-context.fillRect(0, 0, canvas.width, canvas.height)
-const safeZone = 50
-cornerToStroke(corner1)
-pathToStroke(getFixedPath(corner1.path), "#c03434")
+const s4 = new StraightSection(
+    "s4",
+    {x: s5.centerOfRotation.x - 18, y: s5.centerOfRotation.y + 4},
+    {x: s5.start.x - 18, y: s5.start.y},
+    s5.centerOfRotation,
+    s5.start
+)
 
+const s3 = new CornerSection(
+    "s3",
+    s4.startSrc,
+    {x:  s4.startSrc.x - 164, y: s4.startSrc.y},
+    s4.startDst,
+    {x:  s4.startDst.x - 164, y: s4.startDst.y}
+)
 
-const buffer = canvas.toBuffer('image/png')
-fs.writeFileSync('./image.png', buffer)
+const s2 = new StraightSection(
+    "s2",
+    {x: s3.start.x, y: s3.start.y - 175},
+    {x: s3.start.x + 125, y: s3.centerOfRotation.y - 175},
+    s3.start,
+    s3.centerOfRotation
+)
 
+const s1 = new CornerSection(
+    "s1",
+    s2.startSrc,
+    {x: s2.startSrc.x, y: s2.startSrc.y - (501-381-18)},
+    s2.startDst,
+    {x: s3.centerOfRotation.x - (sqrt(pow(284, 2) - pow( 501-381-18+175, 2))), y: s2.startDst.y - (501-381-18)}
+)
 
-function cornerToStroke(section: CornerSection, style: string | CanvasGradient | CanvasPattern = "#000000") {
-    stroke(() => {
-        moveTo(getFixedPoint(section.centerOfRotation))
-        lineTo(getFixedPoint(section.start))
-        moveTo(getFixedPoint(section.centerOfRotation))
-        lineTo(getFixedPoint(section.end))
-    }, style, [5, 15])
+const plan = new Plan([s1, s2, s3, s4, s5, s6, s7, s8])
+plan.computePaths()
+console.log(plan.computeLength())
+console.log(plan.computeArea())
 
-    stroke(() => {
-        moveTo(getFixedPoint(section.opposite))
-        lineTo(getFixedPoint(section.start))
-        moveTo(getFixedPoint(section.opposite))
-        lineTo(getFixedPoint(section.end))
-    }, style)
-
-    stroke(() => {
-        moveTo(getFixedPoint(centerOf(section.centerOfRotation, section.start)))
-        lineTo(getFixedPoint(centerOf(section.end, section.opposite)))
-        moveTo(getFixedPoint(centerOf(section.centerOfRotation, section.end)))
-        lineTo(getFixedPoint(centerOf(section.start, section.opposite)))
-    })
-}
-
-function pathToStroke(path: Point[], style: Style = "#000000") {
-    stroke(() => {
-        moveTo(path[0])
-        path.slice(1).forEach(lineTo)
-    }, style)
-    path.forEach(point => drawPoint(point, style))
-}
-
-function stroke(drawFunction: () => void, style: Style = "#000000", dash: number[] = []) {
-    context.beginPath()
-    context.setLineDash(dash)
-    context.strokeStyle = style
-    drawFunction()
-    context.stroke()
-}
-
-function moveTo(point: Point) {
-    context.moveTo(point.x, point.y)
-}
-
-function lineTo(point: Point) {
-    context.lineTo(point.x, point.y)
-}
-
-function drawPoint(point: Point, style: Style = "#000000") {
-    context.beginPath()
-    context.fillStyle = style
-    context.arc(point.x, point.y, 2, 0, Math.PI * 2, true)
-    context.fill()
-}
-
-function getFixedPoint(point: Point) {
-    return {x: point.x + safeZone, y: canvas.height - point.y - safeZone}
-}
-
-function getFixedPath(path: Point[]) {
-    return path.map(point => getFixedPoint(point))
-}
-
-type Style = string | CanvasGradient | CanvasPattern
+const drawer = new Drawer()
+drawer.drawPlan(plan)
