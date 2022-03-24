@@ -1,4 +1,4 @@
-import {Point} from "./Point";
+import {Point} from "../geometry/Point";
 import {Style} from "./Style";
 
 export type Line = {

@@ -1,13 +1,14 @@
-import {Point} from "./Point";
-import {Section} from "./Section";
+import {Point} from "../../geometry/Point";
+import {Volume} from "./Volume";
 import {Bezier} from "bezier-js";
-import {areaOfTriangle, centerOf, dot, normalize, sub} from "../geometry";
-import {Line} from "./Line";
+import {areaOfQuadrilateral, areaOfTriangle, centerOf, dot, getCommonPoint, normalize, sub} from "../../../geometry";
+import {Line} from "../../drawing/Line";
+import {Segment} from "../Segment";
 const acos = Math.acos
 
 /**
  *
- * start         opposite
+ * start         corner
  *   |------------|
  *   |            |
  *   |            |
@@ -18,38 +19,24 @@ const acos = Math.acos
  *
  */
 
-export class CornerSection extends Section {
+export class CornerVolume extends Volume {
     centerOfRotation: Point
-    start: Point
-    end: Point
-    opposite: Point
+    corner: Point
+    startOfRotation: Point
+    endOfRotation: Point
 
-    constructor(name: string, center: Point, start: Point, end: Point, opposite: Point) {
-        super(name)
-        this.centerOfRotation = center;
-        this.start = start;
-        this.end = end;
-        this.opposite = opposite;
-    }
+    constructor(start: Segment, end: Segment, corner: Point) {
+        super(start, end)
+        if (start.bottom != end.bottom)
+            throw 'Cannot determinate center of area '
+                + name
+                + '. Make sure the sections are defined correctly: '
+                + `start = ${start}; end = ${end}`
 
-    computeArea(): number {
-        const a1 = normalize(this.start, this.end)
-        const b1 = normalize(this.centerOfRotation, this.start)
-        const angle1 = acos(dot(
-                sub(this.end, this.centerOfRotation),
-                sub(this.end, this.start)
-            ) / (normalize(this.end, this.centerOfRotation) * normalize(this.end, this.start)))
-        const area1 = areaOfTriangle(a1, b1, angle1)
-
-        const a2 = normalize(this.centerOfRotation, this.opposite)
-        const b2 = normalize(this.start, this.centerOfRotation)
-        const angle2 = acos(dot(
-            sub(this.opposite, this.start),
-            sub(this.opposite, this.centerOfRotation)
-        ) / (normalize(this.opposite, this.start) * normalize(this.opposite, this.centerOfRotation)))
-        const area2 = areaOfTriangle(a2, b2, angle2)
-
-        return area1 + area2
+        this.centerOfRotation = start.bottom
+        this.corner = corner
+        this.startOfRotation = start.top
+        this.endOfRotation = end.top
     }
 
     computePath(numberOfPoints: number = 20) {
@@ -58,9 +45,9 @@ export class CornerSection extends Section {
     }
 
     computeBezierPath(step: number) {
-        const leftCenter = centerOf(this.centerOfRotation, this.start)
-        const rightCenter = centerOf(this.opposite, this.end)
-        const bottomCenter = centerOf(this.centerOfRotation, this.end)
+        const leftCenter = centerOf(this.centerOfRotation, this.startOfRotation)
+        const rightCenter = centerOf(this.corner, this.endOfRotation)
+        const bottomCenter = centerOf(this.centerOfRotation, this.endOfRotation)
 
         const center = centerOf(leftCenter, rightCenter)
         const start = centerOf(center, leftCenter)
@@ -73,25 +60,21 @@ export class CornerSection extends Section {
         this.path.push(bottomCenter)
     }
 
-    getLines(): Line[] {
+    getOutlines(): Line[] {
         const lines: Line[] = []
-        lines.push({
-            path: [this.start, this.centerOfRotation, this.end],
-            style: {style: "#000000", lineDash: [5, 15], lineWidth: 2}
-        })
 
         lines.push({
-            path: [this.start, this.opposite, this.end],
+            path: [this.startOfRotation, this.corner, this.endOfRotation],
             style: {style: "#000000", lineDash: [], lineWidth: 3}
         })
 
         lines.push({
-            path: [centerOf(this.centerOfRotation, this.start), centerOf(this.end, this.opposite)],
+            path: [centerOf(this.centerOfRotation, this.startOfRotation), centerOf(this.endOfRotation, this.corner)],
             style: {style: "#000000", lineDash: [2, 5], lineWidth: 1}
         })
 
         lines.push({
-            path: [centerOf(this.centerOfRotation, this.end), centerOf(this.start, this.opposite)],
+            path: [centerOf(this.centerOfRotation, this.endOfRotation), centerOf(this.startOfRotation, this.corner)],
             style: {style: "#000000", lineDash: [2, 5], lineWidth: 1}
         })
 

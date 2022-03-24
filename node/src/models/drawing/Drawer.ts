@@ -1,9 +1,9 @@
 import {Canvas, CanvasRenderingContext2D, createCanvas} from "canvas";
-import {Point} from "./Point";
+import {Point} from "../geometry/Point";
 import {color, defaultStyle, Style} from "./Style";
 import fs from "fs";
 import {Line} from "./Line";
-import {Plan} from "./Plan";
+import {Horn} from "../components/Horn";
 
 
 export class Drawer {
@@ -30,10 +30,13 @@ export class Drawer {
     }
 
     /** Draw **/
-    drawPlan(plan: Plan) {
-        for (let section of plan.sections) {
-            this.strokeLines(section.getLines())
-            this.strokePath(section.path, color("#de1616"), true)
+    drawPlan(plan: Horn) {
+        for (let volume of plan.volumes) {
+            this.strokeLines(volume.getOutlines())
+            this.strokePath(volume.path, color("#de1616"), true)
+        }
+        for (let section of plan.getSegments()) {
+            this.strokeLine(section.getLine())
         }
         this.saveAsFile('image.png')
     }

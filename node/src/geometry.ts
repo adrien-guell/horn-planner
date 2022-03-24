@@ -1,4 +1,5 @@
-import {Point} from "./models/Point";
+import {Point} from "./models/geometry/Point";
+import {Segment} from "./models/components/Segment";
 const sqrt = Math.sqrt;
 const pow = Math.pow;
 const sin = Math.sin;
@@ -39,14 +40,49 @@ export function div(pointA: Point, div: number): Point {
     }
 }
 
-export function areaOfPolygon(points: Point[]): number {
-
+export function getCommonPoint(a: Segment, b: Segment): Point {
+    if (a.top == b.top || a.top == b.bottom)
+        return a.top
+    return a.bottom
 }
 
-export function areaOfTriangle(a: number, b: number, angle: number): number {
-    return 0.5 * a * b * sin(angle)
+export function areaOfQuadrilateral(a: Point, b: Point, c: Point, d: Point): number {
+    const center = centerOf(a, c);
+    return areaOfTriangle(a, center, b)
+        + areaOfTriangle(b, center, c)
+        + areaOfTriangle(c, center, d)
+        + areaOfTriangle(d, center, a);
 }
 
-export function areaOfRightTriangle(width: number, height: number) {
-    return (width * height) / 2
+/* With ac = hypotenuse */
+export function areaOfTriangle(a: Point, b: Point, c: Point): number {
+    let center: Point
+
+    if (c.x - a.x == 0) {
+        center = {x: a.x, y: b.y}
+    } else {
+        // d1 = a1*x + b1
+        const a1 = ((c.y - a.y) / (c.x - a.x));
+        if (a1 == 0) {
+            center = {x: b.x, y: a.y}
+        } else {
+            const b1 = a.y - a1 * a.x;
+
+            // d2 = a2*x + b2
+            const a2 = -1 / a1;
+            const b2 = b.y - a2 * b.x;
+
+            // crossing of d1 and d2
+            const centerX = (b2 - b1) / (a1 - a2);
+            const centerY = a1 * centerX + b1;
+            center = {x: centerX, y: centerY};
+        }
+    }
+
+    return areaOfRightTriangle(a, center, b) + areaOfRightTriangle(b, center, c);
+}
+
+/* With ac = hypotenuse */
+export function areaOfRightTriangle(a: Point, b: Point, c: Point): number {
+    return (normalize(a, b) * normalize(b, c)) / 2;
 }

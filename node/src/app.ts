@@ -1,11 +1,14 @@
-import {CornerSection} from "./models/CornerSection";
-import {Drawer} from "./models/Drawer";
-import {StraightSection} from "./models/StraightSection";
-import {Plan} from "./models/Plan";
+import {normalize} from "./geometry";
+import {CornerVolume} from "./models/components/volume/CornerVolume";
+import {Drawer} from "./models/drawing/Drawer";
+import {Segment} from "./models/components/Segment";
+import {StraightVolume} from "./models/components/volume/StraightVolume";
+import {Horn} from "./models/components/Horn";
+import {Volume} from "./models/components/volume/Volume";
 const sqrt = Math.sqrt
 const pow = Math.pow
 
-const s8 = new StraightSection(
+/*const s8 = new StraightSection(
     "s8",
     {x: 344, y: 363},
     {x: 344, y: 0},
@@ -67,12 +70,70 @@ const s1 = new CornerSection(
     {x: s2.startSrc.x, y: s2.startSrc.y - (501-381-18)},
     s2.startDst,
     {x: s3.centerOfRotation.x - (sqrt(pow(284, 2) - pow( 501-381-18+175, 2))), y: s2.startDst.y - (501-381-18)}
+)*/
+
+const s5 = new Segment(
+    5,
+    {x: 0, y: 0},
+    {x: 0, y: 650-350}
 )
 
-const plan = new Plan([s1, s2, s3, s4, s5, s6, s7, s8])
+const s4 = new Segment(
+    4,
+    {x: s5.top.x + 99 + 15, y: s5.top.y},
+    {x: s5.bottom.x + 99 + 15, y: s5.bottom.y}
+)
+
+const s3 = new Segment(
+    3,
+    {x: s4.bottom.x + 340-30-99, y: s4.bottom.y},
+    s4.bottom
+)
+
+const s2 = new Segment(
+    2,
+    {x: s3.top.x, y: s3.top.y + 350 - 80},
+    {x: s3.top.x - 115, y: s3.top.y + 350 - 80}
+)
+
+const s1 = new Segment(
+    1,
+    {x: s2.bottom.x, y: s2.bottom.y + 80},
+    s2.bottom
+)
+
+const l12 = new CornerVolume(
+    s1,
+    s2,
+    {x: s2.top.x, y: s1.top.y}
+)
+
+const l23 = new StraightVolume(
+    s2,
+    s3
+)
+
+const l34 = new CornerVolume(
+    s3,
+    s4,
+    {x: s3.top.x, y: s4.top.y}
+)
+
+const l45 = new StraightVolume(
+    s4,
+    s5
+)
+
+/*TODO faire chambre de compression
+* rassembler plusieurs sections
+*
+*  */
+
+const plan = new Horn(350, [l12, l23, l34, l45])
+plan.mergeVolumes(2)
 plan.computePaths()
-console.log(plan.computeLength())
-console.log(plan.computeArea())
+plan.printSegmentsArea()
+plan.printVolumesLength()
 
 const drawer = new Drawer()
 drawer.drawPlan(plan)
