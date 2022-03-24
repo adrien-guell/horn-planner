@@ -19,7 +19,7 @@ export class Horn {
     }
 
     computePaths() {
-        this.volumes.forEach(volume => volume.computePath())
+        this.volumes.forEach(volume => volume.getPath())
     }
 
     getSegments(): Segment[] {
@@ -33,9 +33,6 @@ export class Horn {
     }
 
     printVolumesLength() {
-        this.volumes.forEach(volume => {
-            const length = volume.computeLength() * 1.2
-            console.log(`${volume.getName()} = ${(length / 10).toFixed(2)}cm`)
-        })
+        this.volumes.forEach(volume => volume.printLength())
     }
 }

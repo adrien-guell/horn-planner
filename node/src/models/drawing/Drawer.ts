@@ -33,10 +33,10 @@ export class Drawer {
     drawPlan(plan: Horn) {
         for (let volume of plan.volumes) {
             this.strokeLines(volume.getOutlines())
-            this.strokePath(volume.path, color("#de1616"), true)
+            this.strokePath(volume.getPath(), color("#de1616"), true)
         }
-        for (let section of plan.getSegments()) {
-            this.strokeLine(section.getLine())
+        for (let segment of plan.getSegments()) {
+            this.strokeLine(segment.getLine())
         }
         this.saveAsFile('image.png')
     }

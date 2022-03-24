@@ -25,7 +25,7 @@ export class StraightVolume extends Volume {
         super(start, end)
     }
 
-    computePath() {
+    getPath() {
         this.path = [
             centerOf(this.start.top, this.start.bottom),
             centerOf(this.end.top, this.end.bottom)

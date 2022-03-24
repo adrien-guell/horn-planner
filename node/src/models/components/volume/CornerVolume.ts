@@ -39,7 +39,7 @@ export class CornerVolume extends Volume {
         this.endOfRotation = end.top
     }
 
-    computePath(numberOfPoints: number = 20) {
+    getPath(numberOfPoints: number = 20) {
         this.path = []
         this.computeBezierPath(1 / numberOfPoints)
     }

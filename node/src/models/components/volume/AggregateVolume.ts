@@ -12,8 +12,8 @@ export class AggregateVolume extends Volume {
         this.volumes = volumes;
     }
 
-    computePath(): void {
-        this.volumes.forEach(volume => volume.computePath())
+    getPath(): void {
+        this.volumes.forEach(volume => volume.getPath())
     }
 
     getOutlines(): Line[] {

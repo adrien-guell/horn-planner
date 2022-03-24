@@ -4,32 +4,27 @@ import {Line} from "../../drawing/Line";
 import {Segment} from "../Segment";
 
 export abstract class Volume {
-    path: Point[]
     start: Segment
     end: Segment
 
     protected constructor(start: Segment, end: Segment) {
-        this.path = []
         this.start = start
         this.end = end
     }
 
-    abstract computePath(): void
+    abstract getPath(): Point[]
     abstract getOutlines(): Line[]
+
+    printLength() {
+        const length = this.getLength() * 1.2
+        console.log(`${this.getName()} = ${(length / 10).toFixed(2)}cm`)
+    }
 
     getName(): string {
         return `L${this.start.id}${this.end.id}`
     }
 
-    computeLength() {
-        if (!this.path) {
-            console.log("Section: Forcing path computation")
-            this.computePath()
-        }
-
-        let sum = 0
-        for (let i = 0; i < this.path!.length - 1; i++)
-            sum += normalize(this.path![i], this.path![i + 1])
-        return sum
+    getLength() {
+        this.getPath().reduce((prev, curr) => normalize(prev, curr))
     }
 }
