@@ -1,6 +1,7 @@
 import {Line} from "../../drawing/Line";
 import {Segment} from "../Segment";
 import {Volume} from "./Volume";
+import {Point} from "../../geometry/Point";
 
 export class AggregateVolume extends Volume {
     volumes: Volume[]
@@ -12,8 +13,8 @@ export class AggregateVolume extends Volume {
         this.volumes = volumes;
     }
 
-    getPath(): void {
-        this.volumes.forEach(volume => volume.getPath())
+    getPath(): Point[] {
+        return this.volumes.reduce((acc: Point[], volume: Volume) => acc.concat(volume.getPath()), [])
     }
 
     getOutlines(): Line[] {

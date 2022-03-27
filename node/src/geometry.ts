@@ -46,6 +46,24 @@ export function getCommonPoint(a: Segment, b: Segment): Point {
     return a.bottom
 }
 
+export function areaOfPolygon(points: Point[]): number {
+    if (points.length <= 2)
+        throw `Cannot compute the area of a polygon of ${points.length} point(s)`
+    if (points.length == 3)
+        return areaOfTriangle(points[0], points[1], points[2])
+    if (points.length == 4)
+        return areaOfQuadrilateral(points[0], points[1], points[2], points[3])
+    if (points.length == 5)
+        return areaOfPolygon([centerOf(points[0], points[1]), points[0], points[3], points[4]])
+            + areaOfPolygon([centerOf(points[0], points[1]), points[1], points[2], points[3]])
+    if (points.length > 5) {
+        return areaOfPolygon(points.slice(0, (points.length / 2) + 1))
+            + areaOfPolygon([...points.slice((points.length / 2), points.length), points[0]])
+    }
+    else
+        throw "Area of polygon must have a length"
+}
+
 export function areaOfQuadrilateral(a: Point, b: Point, c: Point, d: Point): number {
     const center = centerOf(a, c);
     return areaOfTriangle(a, center, b)
@@ -54,7 +72,6 @@ export function areaOfQuadrilateral(a: Point, b: Point, c: Point, d: Point): num
         + areaOfTriangle(d, center, a);
 }
 
-/* With ac = hypotenuse */
 export function areaOfTriangle(a: Point, b: Point, c: Point): number {
     let center: Point
 

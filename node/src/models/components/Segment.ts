@@ -27,11 +27,11 @@ export class Segment {
     }
 
     printArea(height: number) {
-        const segmentArea = this.computeSegmentArea(height);
+        const segmentArea = this.getArea(height);
         console.log(`${this.getName()} = ${(segmentArea / 100).toFixed(2)}cm²`);
     }
 
-    computeSegmentArea(height: number): number {
+    getArea(height: number): number {
         return normalize(this.top, this.bottom) * height
     }
 

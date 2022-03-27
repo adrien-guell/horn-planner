@@ -130,10 +130,11 @@ const l45 = new StraightVolume(
 *  */
 
 const plan = new Horn(350, [l12, l23, l34, l45])
-plan.mergeVolumes(2)
-plan.computePaths()
+plan.mergeVolumes(1)
+plan.getPath()
 plan.printSegmentsArea()
 plan.printVolumesLength()
 
 const drawer = new Drawer()
-drawer.drawPlan(plan)
+drawer.drawHorn(plan)
+drawer.saveAsFile('image.png')

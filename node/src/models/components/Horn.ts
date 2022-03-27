@@ -1,6 +1,7 @@
 import {AggregateVolume} from "./volume/AggregateVolume";
 import {Volume} from "./volume/Volume";
 import {Segment} from "./Segment";
+import {Point} from "../geometry/Point";
 
 export class Horn {
     volumes: Volume[]
@@ -18,8 +19,8 @@ export class Horn {
         ]
     }
 
-    computePaths() {
-        this.volumes.forEach(volume => volume.getPath())
+    getPath(): Point[] {
+        return this.volumes.reduce((acc: Point[], volume: Volume) => acc.concat(volume.getPath()), [])
     }
 
     getSegments(): Segment[] {
