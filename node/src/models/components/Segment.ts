@@ -27,18 +27,18 @@ export class Segment {
     }
 
     printArea(height: number) {
-        const segmentArea = this.getArea(height);
+        const segmentArea = this.getLength() * height;
         console.log(`${this.getName()} = ${(segmentArea / 100).toFixed(2)}cm²`);
-    }
-
-    getArea(height: number): number {
-        return normalize(this.top, this.bottom) * height
     }
 
     getLine() {
         return {
             path: [this.top, this.bottom],
-            style: {style: "#000000", lineDash: [5, 15], lineWidth: 3}
+            style: {style: "#000000", lineDash: [5, 15], lineWidth: 2}
         }
+    }
+
+    getLength() {
+        return normalize(this.top, this.bottom)
     }
 }

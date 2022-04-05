@@ -1,7 +1,9 @@
 import {Point} from "../../geometry/Point";
-import {normalize} from "../../../geometry";
+import {getHeightPointOfTriangle, normalize, radiansToDegrees} from "../../../geometry";
 import {Line} from "../../drawing/Line";
 import {Segment} from "../Segment";
+
+const atan = Math.atan
 
 export abstract class Volume {
     start: Segment
@@ -30,5 +32,10 @@ export abstract class Volume {
     printLength() {
         const length = this.getLength() * 1.2
         console.log(`${this.getName()} = ${(length / 10).toFixed(2)}cm`)
+    }
+
+    getAngle() {
+        const dh = (this.end.getLength() - this.start.getLength()) / 2
+        return 90 + radiansToDegrees(atan( dh / this.getLength()))
     }
 }

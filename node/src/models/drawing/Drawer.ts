@@ -6,6 +6,7 @@ import {Line} from "./Line";
 import {Horn} from "../components/Horn";
 import {Volume} from "../components/volume/Volume";
 import {Segment} from "../components/Segment";
+import {ThroatChamber} from "../components/ThroatChamber";
 
 
 export class Drawer {
@@ -36,6 +37,12 @@ export class Drawer {
         this.moveTo(horn.volumes[0].start.top) // FIXME hot fix to force first line to be drawn
         horn.volumes.forEach(volume => this.drawVolume(volume))
         horn.getSegments().forEach(segment => this.drawSegment(segment))
+        this.drawThroatChamber(horn.throatChamber)
+    }
+
+    drawThroatChamber(throatChamber: ThroatChamber) {
+        this.strokeLines(throatChamber.getOutlines())
+        this.strokePath(throatChamber.getPath(), color("#de1616"), true)
     }
 
     drawVolume(volume: Volume) {
