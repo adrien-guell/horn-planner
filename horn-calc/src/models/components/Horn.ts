@@ -1,5 +1,5 @@
-import {AggregateVolume} from "./volume/AggregateVolume";
-import {Volume} from "./volume/Volume";
+import {AggregateSection} from "./section/AggregateSection";
+import {Section} from "./section/Section";
 import {Segment} from "./Segment";
 import {Point} from "../geometry/Point";
 import * as assert from "assert";
@@ -7,27 +7,25 @@ import {apprxEqual, apprxNotEqual} from "../../geometry";
 import {ThroatChamber} from "./ThroatChamber";
 
 export class Horn {
-    volumes: Volume[]
+    sections: Section[]
     height: number
     throatChamber: ThroatChamber
-    speakerVolume: number
 
-    constructor(height: number, volumes: Volume[], throatChamber: ThroatChamber, speakerVolume: number) {
+    constructor(height: number, sections: Section[], throatChamber: ThroatChamber) {
         this.height = height
-        this.volumes = volumes
+        this.sections = sections
         this.throatChamber = throatChamber
-        this.speakerVolume = speakerVolume
     }
 
-    mergeVolumes(precision: number) {
-        const angles = this.volumes.map(volume => volume.getAngle())
+    mergeSections(precision: number) {
+        const angles = this.sections.map(section => section.getAngle())
         let i = 0
-        while (i < this.volumes.length - 1) {
+        while (i < this.sections.length - 1) {
             if (apprxEqual(angles[i], angles[i + 1], precision)) {
                 let j = i + 1;
-                while (j < this.volumes.length - 1) {
+                while (j < this.sections.length - 1) {
                     if (apprxNotEqual(angles[j], angles[j + 1], precision)) {
-                        this.mergeVolumesWithBounds(i, j)
+                        this.mergeSectionsWithBounds(i, j)
                         break
                     }
                     j++
@@ -37,25 +35,25 @@ export class Horn {
         }
     }
 
-    private mergeVolumesWithBounds(start: number, end: number) {
-        const startVolumes = start == 0 ? [] : this.volumes.slice(0, start)
-        const mergedVolume = new AggregateVolume(this.volumes.slice(start, end + 1))
-        const endVolumes = end == (this.volumes.length - 1) ? [] : this.volumes.slice(end + 1, this.volumes.length)
+    private mergeSectionsWithBounds(start: number, end: number) {
+        const startSections = start == 0 ? [] : this.sections.slice(0, start)
+        const mergedSection = new AggregateSection(this.sections.slice(start, end + 1))
+        const endSections = end == (this.sections.length - 1) ? [] : this.sections.slice(end + 1, this.sections.length)
 
-        this.volumes = [
-            ...startVolumes,
-            mergedVolume,
-            ...endVolumes
+        this.sections = [
+            ...startSections,
+            mergedSection,
+            ...endSections
         ]
     }
 
     private getPath(): Point[] {
-        return this.volumes.reduce((acc: Point[], volume: Volume) => acc.concat(volume.getPath()), [])
+        return this.sections.reduce((acc: Point[], section: Section) => acc.concat(section.getPath()), [])
     }
 
     getSegments(): Segment[] {
-        const segments = this.volumes.map(volume => volume.start)
-        segments.push(this.volumes[this.volumes.length - 1].end)
+        const segments = this.sections.map(section => section.start)
+        segments.push(this.sections[this.sections.length - 1].end)
         return segments
     }
 
@@ -63,12 +61,15 @@ export class Horn {
         this.getSegments().forEach(segment => segment.printArea(this.height))
     }
 
-    printVolumesLength() {
-        this.volumes.forEach(volume => volume.printLength())
+    printSectionsLength() {
+        this.sections.forEach(section => section.printLength())
     }
 
-    printThroatChamberData() {
-        this.throatChamber.printVolume(this.height, this.speakerVolume)
+    /**
+     * @param speakerVolume in cube mm
+     */
+    printThroatChamberData(speakerVolume: number) {
+        this.throatChamber.printVolume(this.height, speakerVolume)
         this.throatChamber.printCrossSectionalArea(this.height)
         if (this.throatChamber.throatAdaptor) {
             this.throatChamber.printAdaptorCrossSectionalArea(this.height)

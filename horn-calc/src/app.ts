@@ -1,12 +1,11 @@
 import {normalize} from "./geometry";
-import {CornerVolume} from "./models/components/volume/CornerVolume";
+import {CornerSection} from "./models/components/section/CornerSection";
 import {Drawer} from "./models/drawing/Drawer";
 import {Segment} from "./models/components/Segment";
-import {StraightVolume} from "./models/components/volume/StraightVolume";
+import {StraightSection} from "./models/components/section/StraightSection";
 import {Horn} from "./models/components/Horn";
-import {Volume} from "./models/components/volume/Volume";
+import {Section} from "./models/components/section/Section";
 import {ThroatChamber} from "./models/components/ThroatChamber";
-import {plan} from "./plans/mth4654";
 
 const sqrt = Math.sqrt
 const pow = Math.pow
@@ -75,11 +74,5 @@ const s1 = new CornerSection(
     {x: s3.centerOfRotation.x - (sqrt(pow(284, 2) - pow( 501-381-18+175, 2))), y: s2.startDst.y - (501-381-18)}
 )*/
 
-plan.mergeVolumes(0.5)
-plan.printSegmentsArea()
-plan.printVolumesLength()
-plan.printThroatChamberData()
-
 const drawer = new Drawer()
-drawer.drawHorn(plan)
 drawer.saveAsFile('image.png')

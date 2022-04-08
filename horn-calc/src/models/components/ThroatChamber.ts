@@ -1,16 +1,16 @@
-import {Volume} from "./volume/Volume";
+import {Section} from "./section/Section";
 import {Segment} from "./Segment";
 import {Point} from "../geometry/Point";
 import {areaOfPolygon} from "../../geometry";
-import {StraightVolume} from "./volume/StraightVolume";
+import {StraightSection} from "./section/StraightSection";
 import {Line} from "../drawing/Line";
 
 export class ThroatChamber {
     driverSegment: Segment
     chamberPolygon: Point[]
-    throatAdaptor: Volume | null
+    throatAdaptor: Section | null
 
-    constructor(driverSegment: Segment, chamberPolygon: Point[], adaptor: Volume | null = null) {
+    constructor(driverSegment: Segment, chamberPolygon: Point[], adaptor: Section | null = null) {
         this.driverSegment = driverSegment;
         this.chamberPolygon = chamberPolygon;
         this.throatAdaptor = adaptor;
@@ -58,11 +58,6 @@ export class ThroatChamber {
         console.log(`Atc = ${(area / 100).toFixed(2)}cm²`)
     }
 
-    /**
-     *
-     * @param height in mm
-     * @param speakerVolume in mm
-     */
     getVolume(height: number, speakerVolume: number): number {
         return (areaOfPolygon(this.chamberPolygon)) * height - speakerVolume// TODO implement for not polygons with angles > 90
     }

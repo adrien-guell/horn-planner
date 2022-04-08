@@ -4,9 +4,10 @@ import {color, defaultStyle, Style} from "./Style";
 import fs from "fs";
 import {Line} from "./Line";
 import {Horn} from "../components/Horn";
-import {Volume} from "../components/volume/Volume";
+import {Section} from "../components/section/Section";
 import {Segment} from "../components/Segment";
 import {ThroatChamber} from "../components/ThroatChamber";
+import {Plan} from "../components/plans/Plan";
 
 
 export class Drawer {
@@ -33,9 +34,13 @@ export class Drawer {
     }
 
     /** Draw **/
+    drawPlan(plan: Plan) {
+
+    }
+
     drawHorn(horn: Horn) {
-        this.moveTo(horn.volumes[0].start.top) // FIXME hot fix to force first line to be drawn
-        horn.volumes.forEach(volume => this.drawVolume(volume))
+        this.moveTo(horn.sections[0].start.top) // FIXME hot fix to force first line to be drawn
+        horn.sections.forEach(section => this.drawSection(section))
         horn.getSegments().forEach(segment => this.drawSegment(segment))
         this.drawThroatChamber(horn.throatChamber)
     }
@@ -45,9 +50,9 @@ export class Drawer {
         this.strokePath(throatChamber.getPath(), color("#de1616"), true)
     }
 
-    drawVolume(volume: Volume) {
-        this.strokeLines(volume.getOutlines())
-        this.strokePath(volume.getPath(), color("#de1616"), true)
+    drawSection(section: Section) {
+        this.strokeLines(section.getOutlines())
+        this.strokePath(section.getPath(), color("#de1616"), true)
     }
 
     drawSegment(segment: Segment) {

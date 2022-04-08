@@ -1,6 +1,6 @@
 import {Segment} from "../models/components/Segment";
-import {CornerVolume} from "../models/components/volume/CornerVolume";
-import {StraightVolume} from "../models/components/volume/StraightVolume";
+import {CornerSection} from "../models/components/section/CornerSection";
+import {StraightSection} from "../models/components/section/StraightSection";
 import {ThroatChamber} from "../models/components/ThroatChamber";
 import {Horn} from "../models/components/Horn";
 
@@ -34,24 +34,24 @@ const s1 = new Segment(
     s2.bottom
 )
 
-const l12 = new CornerVolume(
+const l12 = new CornerSection(
     s1,
     s2,
     {x: s2.top.x, y: s1.top.y}
 )
 
-const l23 = new StraightVolume(
+const l23 = new StraightSection(
     s2,
     s3
 )
 
-const l34 = new CornerVolume(
+const l34 = new CornerSection(
     s3,
     s4,
     {x: s3.top.x, y: s4.top.y}
 )
 
-const l45 = new StraightVolume(
+const l45 = new StraightSection(
     s4,
     s5
 )
@@ -71,7 +71,7 @@ const a1 = new Segment(
     c,
     b
 )
-const adaptor = new StraightVolume(
+const adaptor = new StraightSection(
     a1,
     s1
 )
